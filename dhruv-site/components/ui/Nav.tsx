@@ -10,7 +10,6 @@ const navLinks = [
   { href: '#genie', label: 'Genie' },
   { href: '#ideas', label: 'Ideas' },
   { href: '#stack', label: 'Stack' },
-  { href: '#contact', label: 'Contact' },
 ]
 
 export default function Nav() {
