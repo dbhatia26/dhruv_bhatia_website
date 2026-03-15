@@ -128,7 +128,7 @@ export default function Hero() {
           <button onClick={() => scrollToSection('work')} style={{ padding: '12px 24px', background: 'rgba(0,212,255,0.09)', border: '1px solid rgba(0,212,255,0.32)', color: 'var(--cyan)', fontFamily: 'DM Mono, monospace', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.2s' }}>
             View Work
           </button>
-          <button onClick={() => scrollToSection('genie')} style={{ padding: '12px 24px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontFamily: 'DM Mono, monospace', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.2s' }}>
+          <button onClick={() => scrollToSection('ask-genie')} style={{ padding: '12px 24px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)', fontFamily: 'DM Mono, monospace', fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.2s' }}>
             Try Genie Demo ↓
           </button>
         </div>
