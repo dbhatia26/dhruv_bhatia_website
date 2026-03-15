@@ -71,7 +71,7 @@ export default function GenieDemo() {
   }
 
   return (
-    <section id="genie" ref={ref} style={{ padding: '120px 24px', borderTop: '1px solid var(--border)', position: 'relative' }}>
+    <section id="ask-genie" ref={ref} style={{ padding: '120px 24px', borderTop: '1px solid var(--border)', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0,212,255,0.04) 0%, transparent 70%)' }} />
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <div className="fade-section" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
