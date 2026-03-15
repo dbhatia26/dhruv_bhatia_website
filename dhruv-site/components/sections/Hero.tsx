@@ -82,7 +82,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg pt-16">
       <style>{`
         @keyframes ring-spin { to { transform: rotate(360deg); } }
         .headshot-ring { animation: ring-spin 4s linear infinite; }
