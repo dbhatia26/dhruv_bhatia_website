@@ -78,7 +78,7 @@ export default function Work() {
         </div>
 
         {/* Project card */}
-        <div className="fade-section" key={active} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', background: 'var(--surface)' }}>
+        <div className="fade-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', background: 'var(--surface)' }}>
 
           {/* Left panel */}
           <div style={{ padding: '28px', borderRight: '1px solid var(--border)' }}>
