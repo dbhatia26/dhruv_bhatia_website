@@ -59,19 +59,30 @@ function DataNetworkCanvas() {
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden grid-bg">
+      <style>{`
+        @keyframes ring-spin { to { transform: rotate(360deg); } }
+        .headshot-ring { animation: ring-spin 4s linear infinite; }
+        html.light .hero-fade { background: linear-gradient(to top, #faf8f5, transparent) !important; }
+        html.light .status-pill { border-color: rgba(60,40,20,0.12); background: rgba(255,255,252,0.6); }
+        html.light .status-pill span { color: rgba(30,22,14,0.5); }
+        html.light .headshot-border { border-color: #faf8f5 !important; }
+      `}</style>
       <DataNetworkCanvas />
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% 40%, rgba(0,212,255,0.07) 0%, transparent 70%)' }} />
-      <div className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none" style={{ background: 'linear-gradient(to top, hsl(220,13%,5%), transparent)' }} />
+      <div className="hero-fade absolute bottom-0 left-0 right-0 h-64 pointer-events-none" style={{ background: 'linear-gradient(to top, #0d0f13, transparent)' }} />
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         {/* Headshot */}
         <div className="relative w-24 h-24 mx-auto mb-6">
-          <div className="absolute inset-[-3px] rounded-full" style={{ background: 'conic-gradient(#00d4ff, #818cf8, #00d4ff)', animation: 'ring-spin 4s linear infinite' }} />
-          <div className="relative w-full h-full rounded-full overflow-hidden border-[3px] border-[hsl(220,13%,5%)] shadow-[0_0_28px_rgba(0,212,255,0.25)]">
+          <div
+            className="headshot-ring absolute inset-[-3px] rounded-full"
+            style={{ background: 'conic-gradient(#00d4ff, #818cf8, #7c3aed, #818cf8, #00d4ff)' }}
+          />
+          <div className="headshot-border relative w-full h-full rounded-full overflow-hidden shadow-[0_0_28px_rgba(0,212,255,0.3)]" style={{ border: '3px solid #0d0f13' }}>
             <Image src="/headshot.jpg" alt="Dhruv Bhatia" fill className="object-cover object-top" />
           </div>
         </div>
         {/* Status pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] mb-10" style={{ fontFamily: 'DM Mono, monospace' }}>
+        <div className="status-pill inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] mb-10" style={{ fontFamily: 'DM Mono, monospace' }}>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-xs text-white/40 tracking-widest uppercase">Vancouver, CA</span>
         </div>
