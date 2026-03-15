@@ -97,7 +97,7 @@ export default function Hero() {
         </div>
 
         {/* Name */}
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(3rem,8vw,6rem)', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', marginBottom: '20px' }}>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2.8rem,6vw,5rem)', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.02em', marginBottom: '20px', whiteSpace: 'nowrap' }}>
           <span style={{ color: 'var(--text-strong)' }}>Dhruv</span>{' '}
           <span className="gradient-text">Bhatia</span>
         </h1>
