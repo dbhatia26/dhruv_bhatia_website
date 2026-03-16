@@ -46,19 +46,16 @@ export default function GenieDemo() {
   const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: "Hi — I'm **Genie**, your AI analytics assistant. Ask me anything about revenue, conversion, stores, or marketing performance." }])
   const [input, setInput] = useState('')
   const [thinking, setThinking] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const chatBodyRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const ref = useRef<HTMLDivElement>(null)
 
-  // Prevent browser auto-focusing this input and scrolling to it on load
+  // Scroll only the chat container, never the page
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (inputRef.current) inputRef.current.blur()
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, thinking])
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight
+    }
+  }, [messages, thinking])
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => entries.forEach((e) => e.target.classList.toggle('visible', e.isIntersecting)), { threshold: 0.05 })
@@ -99,7 +96,7 @@ export default function GenieDemo() {
               <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Genie · Enterprise Analytics · Databricks</span>
             </div>
           </div>
-          <div style={{ height: '280px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div ref={chatBodyRef} style={{ height: '280px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {messages.map((m, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{ maxWidth: '88%', borderRadius: '10px', padding: '10px 14px', ...(m.role === 'user' ? { background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.22)', color: 'var(--cyan)' } : { background: 'var(--surface)', border: '1px solid var(--border)' }) }}>
@@ -117,7 +114,6 @@ export default function GenieDemo() {
                 </div>
               </div>
             )}
-            <div ref={bottomRef} />
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '10px 16px 6px' }}>
             {SAMPLE_QUESTIONS.map((q) => (
