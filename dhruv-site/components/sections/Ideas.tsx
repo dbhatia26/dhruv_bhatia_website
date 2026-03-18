@@ -11,20 +11,20 @@ const ideas = [
   { id: '006', date: 'Mar 2026', title: 'The Age of Vibe Analytics', excerpts: ['Vibe coding let developers ship by feel — prompt, iterate, trust the model. Analytics is next.', "But there's a catch nobody is saying loudly enough. Bad code breaks visibly. A wrong analytics answer looks identical to a right one — confident, formatted, fast.", "The floor of vibe analytics isn't the AI model. It's governance. Semantic layers, certified datasets, curated contexts. The teams that win won't have the best models — they'll have the most trustworthy foundations underneath them."], tags: ['AI Analytics', 'Governance', 'Future of BI'] },
 ]
 
-function IdeaCard({ idea }: { idea: typeof ideas[0] }) {
-  const [expanded, setExpanded] = useState(false)
+function IdeaCard({ idea, isExpanded, onToggle }: { idea: typeof ideas[0], isExpanded: boolean, onToggle: () => void }) {
   return (
-    <article onMouseEnter={() => setExpanded(true)} onMouseLeave={() => setExpanded(false)} onClick={() => setExpanded(!expanded)}
-      style={{ background: 'var(--surface)', border: `1px solid ${expanded ? 'rgba(0,212,255,0.22)' : 'var(--border)'}`, borderRadius: '12px', padding: 'clamp(16px,3vw,24px)', cursor: 'pointer', transition: 'all 0.35s ease', display: 'flex', flexDirection: 'column', minHeight: '200px', transform: expanded ? 'translateY(-3px)' : 'none', boxShadow: expanded ? '0 12px 32px rgba(0,0,0,0.15)' : 'none' }}>
+    <article
+      onClick={onToggle}
+      style={{ background: 'var(--surface)', border: `1px solid ${isExpanded ? 'rgba(0,212,255,0.22)' : 'var(--border)'}`, borderRadius: '12px', padding: 'clamp(16px,3vw,24px)', cursor: 'pointer', transition: 'all 0.35s ease', display: 'flex', flexDirection: 'column', minHeight: '200px', transform: isExpanded ? 'translateY(-3px)' : 'none', boxShadow: isExpanded ? '0 12px 32px rgba(0,0,0,0.15)' : 'none' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexShrink: 0 }}>
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '16px', color: 'var(--text-faint)' }}>{idea.id}</span>
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '11px', color: 'var(--text-faint)' }}>{idea.date}</span>
       </div>
-      <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '14px', fontWeight: 700, color: expanded ? 'var(--text-strong)' : 'var(--text-body)', lineHeight: 1.4, marginBottom: '10px', flexShrink: 0, transition: 'color 0.2s' }}>{idea.title}</h3>
-      <div style={{ flex: 1, overflow: expanded ? 'visible' : 'hidden', display: expanded ? 'block' : '-webkit-box', WebkitLineClamp: expanded ? 'unset' : 3, WebkitBoxOrient: 'vertical' as const }}>
+      <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '14px', fontWeight: 700, color: isExpanded ? 'var(--text-strong)' : 'var(--text-body)', lineHeight: 1.4, marginBottom: '10px', flexShrink: 0, transition: 'color 0.2s' }}>{idea.title}</h3>
+      <div style={{ flex: 1, overflow: isExpanded ? 'visible' : 'hidden', display: isExpanded ? 'block' : '-webkit-box', WebkitLineClamp: isExpanded ? 'unset' : 3, WebkitBoxOrient: 'vertical' as const }}>
         {idea.excerpts.map((p, i) => <p key={i} style={{ fontSize: '12.5px', color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: i < idea.excerpts.length - 1 ? '8px' : '0' }}>{p}</p>)}
       </div>
-      {!expanded && <p style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(0,212,255,0.5)', marginTop: '10px', flexShrink: 0 }}>Tap to read more ↓</p>}
+      {!isExpanded && <p style={{ fontFamily: 'DM Mono, monospace', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(0,212,255,0.5)', marginTop: '10px', flexShrink: 0 }}>Tap to read more ↓</p>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '14px', flexShrink: 0 }}>
         {idea.tags.map((t) => <span key={t} className="tag">{t}</span>)}
       </div>
@@ -33,12 +33,18 @@ function IdeaCard({ idea }: { idea: typeof ideas[0] }) {
 }
 
 export default function Ideas() {
+  const [activeId, setActiveId] = useState<string | null>(null)
   const ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => entries.forEach((e) => e.target.classList.toggle('visible', e.isIntersecting)), { threshold: 0.05 })
     ref.current?.querySelectorAll('.fade-section').forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
+
+  const handleToggle = (id: string) => {
+    setActiveId(prev => prev === id ? null : id)
+  }
   return (
     <section id="ideas" ref={ref} style={{ padding: 'clamp(60px,10vw,120px) clamp(16px,5vw,24px)', borderTop: '1px solid var(--border)' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -50,7 +56,7 @@ export default function Ideas() {
         <p className="fade-section" style={{ color: 'var(--text-muted)', fontSize: '1.05rem', fontWeight: 300, marginBottom: '36px' }}>Short thoughts on the future of analytics, AI, and decision systems.</p>
         <style>{`.ideas-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start}@media(max-width:640px){.ideas-grid{grid-template-columns:1fr}}`}</style>
         <div className="fade-section ideas-grid">
-          {ideas.map((idea) => <IdeaCard key={idea.id} idea={idea} />)}
+          {ideas.map((idea) => <IdeaCard key={idea.id} idea={idea} isExpanded={activeId === idea.id} onToggle={() => handleToggle(idea.id)} />)}
         </div>
       </div>
     </section>
