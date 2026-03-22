@@ -111,7 +111,7 @@ export default function Hero() {
 
         {/* Role */}
         <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 'clamp(9px,2vw,11px)', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: '20px' }}>
-          Lead Business Analyst · Data Operations
+          Data & AI Systems Leader
         </p>
 
         {/* Statement */}
