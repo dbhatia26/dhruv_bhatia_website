@@ -3,9 +3,9 @@ import Footer from '@/components/ui/Footer'
 import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'
 import Work from '@/components/sections/Work'
+import Ideas from '@/components/sections/Ideas'
 import Speaking from '@/components/sections/Speaking'
 import GenieDemo from '@/components/sections/GenieDemo'
-import Ideas from '@/components/sections/Ideas'
 import Stack from '@/components/sections/Stack'
 import Contact from '@/components/sections/Contact'
 
@@ -16,9 +16,9 @@ export default function Home() {
       <Hero />
       <About />
       <Work />
+      <Ideas />
       <Speaking />
       <GenieDemo />
-      <Ideas />
       <Stack />
       <Contact />
       <Footer />
