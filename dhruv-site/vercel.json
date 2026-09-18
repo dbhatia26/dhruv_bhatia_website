@@ -4,6 +4,12 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "regions": ["iad1"],
+  "redirects": [
+    {
+      "source": "/tools/pdf-signer",
+      "destination": "/tools/pdf-signer/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
