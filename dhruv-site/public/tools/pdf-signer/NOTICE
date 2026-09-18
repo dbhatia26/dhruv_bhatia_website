@@ -1,0 +1,24 @@
+Signing Desk bundles the following third-party software in vendor/.
+Each licence is reproduced in full alongside the file it covers.
+
+-------------------------------------------------------------------------------
+PDF.js
+  Files:     vendor/pdf.min.js, vendor/pdf.worker.min.js
+  Version:   3.11.174
+  Copyright: Mozilla Foundation and contributors
+  Licence:   Apache License 2.0
+  Full text: vendor/LICENSE-pdf.js.txt
+  Source:    https://github.com/mozilla/pdf.js
+
+-------------------------------------------------------------------------------
+pdf-lib
+  File:      vendor/pdf-lib.min.js
+  Version:   1.17.1
+  Copyright: 2019 Andrew Dillon
+  Licence:   MIT License
+  Full text: vendor/LICENSE-pdf-lib.txt
+  Source:    https://github.com/Hopding/pdf-lib
+
+-------------------------------------------------------------------------------
+Neither file has been modified. Both are the published distribution builds,
+copied unchanged from the npm registry.
