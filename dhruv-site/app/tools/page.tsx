@@ -31,6 +31,17 @@ const tools: Tool[] = [
     tags: ['PDF', 'Works offline', 'No account'],
     live: true,
   },
+  {
+    name: 'Running Tab',
+    href: '/tools/running-tab',
+    accent: '#ff8b7b',
+    category: 'Travel',
+    summary:
+      'Split expenses with friends on a trip. Equal, exact, percent or shares splits, multi-currency with live exchange rates, balances that simplify into the fewest payments. A shared link is the whole login, no account to make.',
+    replaces: 'Splitwise',
+    tags: ['No account', 'Multi-currency'],
+    live: true,
+  },
 ]
 
 export default function ToolsPage() {

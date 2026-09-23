@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { SplitError } from "../types";
 import { NotFoundError } from "../db";
+import { RateLimitError } from "../rateLimit";
 
 export function noStore<T>(data: T, status = 200): NextResponse {
   return NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
@@ -21,6 +22,9 @@ export function errorResponse(err: unknown): NextResponse {
       },
       400
     );
+  }
+  if (err instanceof RateLimitError) {
+    return noStore({ error: err.message }, 429);
   }
   if (err instanceof SplitError) {
     return noStore({ error: err.message }, 400);

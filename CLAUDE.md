@@ -88,7 +88,7 @@ Split specs are stored as JSONB on the expense row (no separate splits table): s
 ### Commands
 
 ```bash
-npm test               # all tests (104 at end of Phase 5)
+npm test               # all tests (105 at end of Phase 6)
 npm run test:watch
 npm run db:generate    # after changing schema.ts
 npm run db:migrate     # apply migrations to Neon
@@ -135,7 +135,10 @@ npm run build          # run before pushing anything non-trivial
   - `BalancesPanel` gained a hero card (`Card` + `GradientBlob`) showing the current device's own balance ("You owe $X" / "You're owed $X") big and prominent, above the existing full per-member breakdown; needed threading `currentMemberId` down from the group page's `identity`.
   - Expense list and the settle-up transfer list moved from one bordered `Card` per row to hairline-divided rows (`divide-y divide-rt-border` in one container) — the repeated-identical-card pattern was one of the three flagged tells.
   - Verified live in both themes on a real group page against real Neon data (balances hero, expense list, add-expense sheet, dark/light toggle), then cleaned up. 104 tests (styling-only pass, no test changes needed).
-- [ ] **Phase 6: hardening and deploy.** `Referrer-Policy: no-referrer` on group routes so the secret never leaks, rate limiting on group creation, empty and error states, then ship to `/tools/<name>`.
+- [x] **Phase 6: hardening.** `Referrer-Policy: no-referrer` on `/tools/running-tab*` via `vercel.json` (same file the existing `X-Content-Type-Options`/`X-Frame-Options`/`X-XSS-Protection` rule lives in). This only takes effect on an actual Vercel deploy, not `npm run dev` — verify on the next preview.
+  - Rate limiting on group creation (`lib/split/rateLimit.ts`, wired into `POST /api/split/groups`): a simple in-memory sliding window, 10 creations/hour per IP, deliberately not Redis- or Postgres-backed. Sized to the actual threat (a naive script spamming junk groups on a small, unlisted, friends-and-family tool), not a distributed attacker. Real limitation: resets on cold start and isn't shared across concurrent Vercel instances, so the effective limit is looser in practice than the number suggests. Move to Postgres or Upstash Redis if real abuse ever shows up. `RateLimitError` maps to 429 in `lib/split/api/respond.ts` (checked before the generic `SplitError` → 400 branch, since it extends `SplitError`). Verified live against real Neon: 11 rapid requests, 10 succeeded and the 11th 429'd, exactly at the boundary.
+  - Audited empty/error state coverage across every feature component; found it already solid from Phases 3-5 (loading/not-found states on the group page, `EmptyState` on the expense list, per-form error text everywhere a mutation can fail, a generic "Something went wrong" fallback in `lib/split/ui/api.ts` for a true network failure, not just a non-2xx response) and made no changes there.
+  - Added the "Running Tab" card to `/tools` (`app/tools/page.tsx`'s `tools` array, same pattern as Signing Desk), so `/tools/running-tab` is now publicly discoverable — but only once this branch reaches `main` and deploys. Still open: merging `splitter` into `main` and deploying is a separate, explicit decision, not done as part of this pass.
 
 ## Gotchas already hit
 
