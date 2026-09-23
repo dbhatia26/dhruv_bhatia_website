@@ -24,6 +24,34 @@ module.exports = {
         mono: ['DM Mono', 'monospace'],
         display: ['Syne', 'system-ui', 'sans-serif'],
       },
+      // Running Tab's own design tokens. Values only resolve inside the
+      // .running-tab wrapper (running-tab.css), so these utilities are inert
+      // everywhere else in the site and safe to add to the shared config.
+      colors: {
+        rt: {
+          bg: 'var(--rt-bg)',
+          surface: 'var(--rt-surface)',
+          'surface-raised': 'var(--rt-surface-raised)',
+          border: 'var(--rt-border)',
+          ink: {
+            strong: 'var(--rt-ink-strong)',
+            body: 'var(--rt-ink-body)',
+            muted: 'var(--rt-ink-muted)',
+            faint: 'var(--rt-ink-faint)',
+          },
+          accent: 'var(--rt-accent)',
+          credit: 'var(--rt-credit)',
+          'credit-soft': 'var(--rt-credit-soft)',
+          'credit-border': 'var(--rt-credit-border)',
+          debit: 'var(--rt-debit)',
+          'debit-soft': 'var(--rt-debit-soft)',
+          'debit-soft-hover': 'var(--rt-debit-soft-hover)',
+          'debit-border': 'var(--rt-debit-border)',
+          warn: 'var(--rt-warn)',
+          'warn-soft': 'var(--rt-warn-soft)',
+          'warn-border': 'var(--rt-warn-border)',
+        },
+      },
       animation: {
         'fade-up': 'fadeUp 0.6s ease forwards',
         'fade-in': 'fadeIn 0.5s ease forwards',

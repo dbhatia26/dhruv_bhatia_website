@@ -1,0 +1,54 @@
+/*
+ * Running Tab's own design tokens. Scoped under .running-tab so they never
+ * touch globals.css's :root or collide with the marketing site's tokens,
+ * which have their own design audit planned separately.
+ */
+.running-tab {
+  --rt-bg: #0b0d10;
+  --rt-surface: #14171b;
+  --rt-surface-raised: #1b1f24;
+  --rt-border: rgba(255, 255, 255, 0.09);
+  --rt-ink-strong: rgba(255, 255, 255, 0.94);
+  --rt-ink-body: rgba(255, 255, 255, 0.72);
+  --rt-ink-muted: rgba(255, 255, 255, 0.48);
+  --rt-ink-faint: rgba(255, 255, 255, 0.28);
+  --rt-accent: #00d4ff;
+  --rt-credit: #34d399;
+  --rt-debit: #fb7185;
+  --rt-warn: #f59e0b;
+
+  /*
+   * Precomputed alpha blends, not Tailwind opacity modifiers (bg-rt-debit/10
+   * etc.): Tailwind's opacity-modifier shorthand doesn't reliably resolve for
+   * a nested theme color backed by a bare var() reference, and silently
+   * produces no background at all rather than an error. color-mix() here
+   * resolves at use-time against whatever --rt-credit/debit/warn currently
+   * is, so these don't need redefining under the light override below.
+   */
+  --rt-credit-soft: color-mix(in srgb, var(--rt-credit) 10%, transparent);
+  --rt-credit-border: color-mix(in srgb, var(--rt-credit) 30%, transparent);
+  --rt-debit-soft: color-mix(in srgb, var(--rt-debit) 10%, transparent);
+  --rt-debit-soft-hover: color-mix(in srgb, var(--rt-debit) 20%, transparent);
+  --rt-debit-border: color-mix(in srgb, var(--rt-debit) 30%, transparent);
+  --rt-warn-soft: color-mix(in srgb, var(--rt-warn) 10%, transparent);
+  --rt-warn-border: color-mix(in srgb, var(--rt-warn) 30%, transparent);
+
+  background: var(--rt-bg);
+  color: var(--rt-ink-body);
+  min-height: 100dvh;
+}
+
+html.light .running-tab {
+  --rt-bg: #f7f6f3;
+  --rt-surface: #ffffff;
+  --rt-surface-raised: #ffffff;
+  --rt-border: rgba(20, 20, 20, 0.1);
+  --rt-ink-strong: rgba(20, 20, 20, 0.92);
+  --rt-ink-body: rgba(20, 20, 20, 0.68);
+  --rt-ink-muted: rgba(20, 20, 20, 0.46);
+  --rt-ink-faint: rgba(20, 20, 20, 0.3);
+  --rt-accent: #0088aa;
+  --rt-credit: #059669;
+  --rt-debit: #e11d48;
+  --rt-warn: #b45309;
+}

@@ -58,8 +58,26 @@ lib/split/
     schemas.ts    Zod structural schemas for request bodies
     index.ts      server-only barrel
   fx.ts           server-only Frankfurter fetch, no caching or override yet
+  ui/
+    api.ts        fetch wrappers over /api/split/*, client-only
+    types.ts      mirrors the API's response shapes, does not import lib/split/db
+    storage.ts    localStorage: device group list, per-group identity
+    useGroup.ts   fetch-on-mount + refresh() hook backing the group page
+    splitInput.ts client-side exact/percent reconciliation feedback
+    __tests__/    unit tests for splitInput's reconciliation logic
 app/api/split/    route handlers, one directory per endpoint (Next 16 async params)
   __tests__/      route handler tests, getDb mocked to PGlite
+app/tools/running-tab/
+  layout.tsx      wraps children in .running-tab, imports running-tab.css
+  running-tab.css scoped design tokens, not in globals.css
+  page.tsx        create-group form + device group list
+  [secret]/page.tsx  the group page
+components/split/
+  ui/             Button, Card, TextField, NumberField, Select, SegmentedControl,
+                  Badge, Avatar, EmptyState, Sheet (Tailwind + clsx, no inline styles)
+  *.tsx           feature components built from ui/: CreateGroupForm, CurrencyPicker,
+                  IdentityPicker, MemberList, ExpenseList/ExpenseRow, AddExpenseSheet,
+                  BalancesPanel, SettleUpSheet
 drizzle/          generated migrations (commit these)
 drizzle.config.ts
 vitest.config.ts
@@ -70,7 +88,7 @@ Split specs are stored as JSONB on the expense row (no separate splits table): s
 ### Commands
 
 ```bash
-npm test               # all tests (88 at end of Phase 3)
+npm test               # all tests (94 at end of Phase 4)
 npm run test:watch
 npm run db:generate    # after changing schema.ts
 npm run db:migrate     # apply migrations to Neon
@@ -99,7 +117,12 @@ npm run build          # run before pushing anything non-trivial
 - [x] **Merge `main` into `splitter`.** Done. Conflicted in `package.json`/`package-lock.json` as expected; resolved by hand-reconciling `package.json` (kept both the Next 16/React 19 bump and the drizzle/vitest/pglite additions, bumped `@next/env` to `16.3.5` to match `next`) and regenerating the lockfile with `npm install` rather than merging it. All 63 tests, `npm run build`, and `npm run lint` still pass post-merge.
 - [x] **Phase 3: API route handlers.** All 9 endpoints under `app/api/split/` (`POST groups`, `GET groups/[secret]`, `POST/PATCH members`, `POST/PATCH/DELETE/restore expenses`, `POST/DELETE settlements`, `GET fx`), written for Next 16's async `params`. Zod structural validation lives in `lib/split/api/schemas.ts`; business rules stay in `lib/split/db/queries.ts` as the single source of truth (not duplicated in Zod). Shared `noStore`/`errorResponse`/`readJson` helpers in `lib/split/api/respond.ts` give every route the `SplitError` → 400 / `NotFoundError` → 404 / `Cache-Control: no-store` contract without repeating it. Node runtime on every route. 25 new route handler tests (`app/api/split/__tests__/`) mock `getDb` to a PGlite instance the same way the Phase 2 integration tests do; also smoke-tested live against real Neon (group create, expense add, balances, fx, 404, then cleaned up). `vitest.config.ts` now includes `app/**/*.test.ts` and resolves the `@/*` alias.
   The `GET fx` route (`lib/split/fx.ts`) does a direct Frankfurter fetch with no caching or manual override yet — that's still Phase 5's job, since Frankfurter doesn't cover several travel currencies.
-- [ ] **Phase 4: UI.** Mobile first. Match the site's existing visual style and Framer Motion conventions. Group page, add-expense sheet, balances, settle-up with simplified/raw toggle, identity picker, device group list. Note in the UI that base-currency totals will not exactly match card statements (banks apply their own rates and fees).
+- [x] **Phase 4: UI.** `/tools/running-tab` (name settled; "Splitting Desk" and "The Kitty" were the other candidates). Deliberately does not reuse the marketing site's inline-style/CSS-variable convention: the user confirmed the rest of the site has its own design audit planned, so Running Tab got its own small design system instead of inheriting one about to be replaced.
+  - Tokens scoped under a `.running-tab` wrapper class (`app/tools/running-tab/running-tab.css`, `app/tools/running-tab/layout.tsx`), Tailwind theme colors in `tailwind.config.js` pointing at those CSS variables. Real component primitives in `components/split/ui/` (Button, Card, TextField, NumberField, Select, SegmentedControl, Badge, Avatar, EmptyState, Sheet), built with Tailwind + `clsx` instead of inline `style={{}}` objects. Credit/debit color-coded balances. Framer Motion (installed but unused until now) powers `Sheet`'s drag-to-dismiss bottom sheet.
+  - Gotcha worth remembering: Tailwind's opacity-modifier shorthand (`bg-rt-accent/90`) silently produces no background at all for a custom CSS-variable-backed theme color, rather than an error, making a button invisible (transparent bg, text color matching the page background) with no console warning. Found by inspecting `getComputedStyle` in a live browser check, not by lint or type-check. Fixed by precomputing the alpha blends as their own `color-mix()`-based CSS custom properties (`--rt-debit-soft`, etc.) instead of relying on the modifier. Avoid `rt-*/NN` opacity-modifier syntax anywhere in this tool.
+  - Feature components in `components/split/`: `CreateGroupForm`, `CurrencyPicker`, `IdentityPicker`, `MemberList`, `ExpenseList`/`ExpenseRow`, `AddExpenseSheet` (all four split modes plus FX with an editable manual-override rate field), `BalancesPanel`, `SettleUpSheet`. Client data layer in `lib/split/ui/`: `api.ts` (fetch wrappers), `types.ts` (mirrors the API's shapes without importing the server-only `lib/split/db` barrel), `storage.ts` (device group list, per-group identity), `useGroup.ts`, `splitInput.ts` (client-side reconciliation feedback for exact/percent splits, mirroring `resolveSplit`'s tolerance logic).
+  - Verified with a full real-browser walkthrough (create group, equal-split expense, exact-split expense in THB exercising live FX fetch and proportional-share conversion, simplified/raw balances toggle, settle up, edit/delete/restore, reload to confirm identity and device-group persistence) against the real Neon database, then cleaned up. 94 tests total (added `lib/split/ui/__tests__/splitInput.test.ts`).
+  - Not done in this pass: adding the listing card to `/tools` (that's Phase 6's "ship to `/tools/<name>`").
 - [ ] **Phase 5: FX.** Basic Frankfurter fetch already exists from Phase 3 (`lib/split/fx.ts`, ECB rates, no key, about 30 currencies, updated once per working day). Still needed: a manual rate override, since several travel currencies (VND, COP, MAD, IDR and others) are not covered, and caching so every expense entry doesn't hit Frankfurter fresh.
 - [ ] **Phase 6: hardening and deploy.** `Referrer-Policy: no-referrer` on group routes so the secret never leaks, rate limiting on group creation, empty and error states, then ship to `/tools/<name>`.
 
@@ -113,3 +136,4 @@ npm run build          # run before pushing anything non-trivial
 - The codemod also inserts `export const instant = false` into every route file as a Cache Components opt-out. It requires `nextConfig.cacheComponents` to be enabled, which the codemod does not add, so the build fails immediately unless you either enable that experimental flag or (simpler, and what we did) delete the inserted lines.
 - No ESLint config existed anywhere in the repo before the Next 16 upgrade, so `public/tools/pdf-signer/vendor/*.min.js` (vendored third-party libraries) had never been linted. The new flat config (`eslint.config.mjs`) needs `public/**` in its `ignores`, or `next lint`/`eslint .` chokes on the minified vendor files.
 - Next 16 auto-generates `dhruv-site/AGENTS.md` and `dhruv-site/CLAUDE.md` on every `next dev`/`next build` (agent guidance pointing at `node_modules/next/dist/docs/`). It does not touch this root `CLAUDE.md`. Disable with `agentRules: false` in `next.config.js` if unwanted; otherwise it just regenerates if deleted.
+- Tailwind's opacity-modifier shorthand (e.g. `bg-rt-accent/90`) silently produces no background at all for a custom theme color backed by a bare `var(--rt-accent)` string, rather than erroring. Found this making an entire button invisible (transparent background, text color matching the page background) in Running Tab, with zero console warning; only `getComputedStyle` in a live browser check caught it. Use precomputed `color-mix()`-based CSS custom properties (see `--rt-debit-soft` etc. in `running-tab.css`) for any translucent tint on a custom theme color instead of the `/NN` modifier.
