@@ -12,10 +12,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-rt-accent text-rt-bg hover:brightness-110 focus-visible:ring-rt-accent",
+  // bg-rt-ink-strong / text-rt-bg flips automatically with the theme: near-black
+  // fill with light text in light mode, near-white fill with dark text in dark
+  // mode, since --rt-ink-strong and --rt-bg both flip. No accent color needed.
+  primary: "bg-rt-ink-strong text-rt-bg hover:opacity-90 focus-visible:ring-rt-ink-strong",
   secondary:
-    "bg-rt-surface text-rt-ink-strong border border-rt-border hover:bg-rt-surface-raised focus-visible:ring-rt-accent",
-  ghost: "bg-transparent text-rt-ink-muted hover:text-rt-ink-strong focus-visible:ring-rt-accent",
+    "bg-rt-surface text-rt-ink-strong border border-rt-border hover:bg-rt-surface-raised focus-visible:ring-rt-ink-strong",
+  ghost: "bg-transparent text-rt-ink-muted hover:text-rt-ink-strong focus-visible:ring-rt-ink-strong",
   danger:
     "bg-rt-debit-soft text-rt-debit border border-rt-debit-border hover:bg-rt-debit-soft-hover focus-visible:ring-rt-debit",
 };

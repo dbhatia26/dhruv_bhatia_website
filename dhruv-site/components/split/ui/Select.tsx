@@ -13,14 +13,14 @@ export function Select({ label, error, className, children, ...props }: SelectPr
   const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-mono uppercase tracking-wider text-rt-ink-faint">
+      <label htmlFor={id} className="text-xs font-medium text-rt-ink-muted">
         {label}
       </label>
       <select
         id={id}
         className={clsx(
           "h-11 rounded-lg border bg-rt-surface px-3 text-sm text-rt-ink-strong",
-          "focus:outline-none focus:ring-2 focus:ring-rt-accent focus:ring-offset-2 focus:ring-offset-rt-bg",
+          "focus:outline-none focus:ring-2 focus:ring-rt-ink-strong focus:ring-offset-2 focus:ring-offset-rt-bg",
           error ? "border-rt-debit" : "border-rt-border",
           className
         )}

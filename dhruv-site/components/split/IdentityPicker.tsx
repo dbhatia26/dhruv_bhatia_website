@@ -53,7 +53,7 @@ export function IdentityPicker({ secret, members, onDone, onMemberAdded }: Ident
               key={m.id}
               type="button"
               onClick={() => choose(m.id)}
-              className="flex min-h-11 items-center gap-3 rounded-lg border border-rt-border bg-rt-surface-raised px-3 py-2.5 text-left text-sm text-rt-ink-strong hover:border-rt-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rt-accent"
+              className="flex min-h-11 items-center gap-3 rounded-lg border border-rt-border bg-rt-surface-raised px-3 py-2.5 text-left text-sm text-rt-ink-strong hover:border-rt-ink-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rt-ink-strong"
             >
               <Avatar id={m.id} name={m.name} size="sm" />
               {m.name}

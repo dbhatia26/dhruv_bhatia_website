@@ -257,7 +257,7 @@ export function AddExpenseSheet({
                 type="checkbox"
                 checked={saveAsDefault}
                 onChange={(e) => setSaveAsDefault(e.target.checked)}
-                className="h-4 w-4 accent-rt-accent"
+                className="h-4 w-4 accent-rt-ink-strong"
               />
               Save as this trip&apos;s default rate for {currency}
             </label>
@@ -298,7 +298,7 @@ export function AddExpenseSheet({
                   type="checkbox"
                   checked={participants.includes(m.id)}
                   onChange={() => toggleParticipant(m.id)}
-                  className="h-4 w-4 accent-rt-accent"
+                  className="h-4 w-4 accent-rt-ink-strong"
                 />
                 {m.name}
               </label>

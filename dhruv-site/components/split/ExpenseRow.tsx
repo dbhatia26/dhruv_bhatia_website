@@ -30,12 +30,7 @@ export function ExpenseRow({
 }: ExpenseRowProps) {
   const deleted = Boolean(expense.deletedAt);
   return (
-    <div
-      className={clsx(
-        "flex items-center gap-3 rounded-xl border border-rt-border bg-rt-surface p-3",
-        deleted && "opacity-50"
-      )}
-    >
+    <div className={clsx("flex items-center gap-3 py-3", deleted && "opacity-50")}>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="truncate text-sm font-medium text-rt-ink-strong">{expense.description}</p>

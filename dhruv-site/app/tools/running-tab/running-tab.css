@@ -2,20 +2,31 @@
  * Running Tab's own design tokens. Scoped under .running-tab so they never
  * touch globals.css's :root or collide with the marketing site's tokens,
  * which have their own design audit planned separately.
+ *
+ * Light is the default (unprefixed) state, since that's the primary feel
+ * for this tool; .running-tab.dark is an explicit opt-in, toggled by
+ * components/split/ThemeToggle.tsx. This is a separate preference from the
+ * marketing site's own html.light toggle: Running Tab is a fully separate
+ * design system already, and defaulting it to light while the marketing
+ * site defaults to dark would conflict if they shared one class/key.
  */
 .running-tab {
-  --rt-bg: #0b0d10;
-  --rt-surface: #14171b;
-  --rt-surface-raised: #1b1f24;
-  --rt-border: rgba(255, 255, 255, 0.09);
-  --rt-ink-strong: rgba(255, 255, 255, 0.94);
-  --rt-ink-body: rgba(255, 255, 255, 0.72);
-  --rt-ink-muted: rgba(255, 255, 255, 0.48);
-  --rt-ink-faint: rgba(255, 255, 255, 0.28);
-  --rt-accent: #00d4ff;
-  --rt-credit: #34d399;
-  --rt-debit: #fb7185;
-  --rt-warn: #f59e0b;
+  --rt-bg: #f7f4ef;
+  --rt-surface: #ffffff;
+  --rt-surface-raised: #fcfbf8;
+  --rt-border: rgba(28, 26, 23, 0.1);
+  --rt-ink-strong: #1c1a17;
+  --rt-ink-body: rgba(28, 26, 23, 0.78);
+  --rt-ink-muted: rgba(28, 26, 23, 0.52);
+  --rt-ink-faint: rgba(28, 26, 23, 0.32);
+  --rt-credit: #6b7f5e;
+  --rt-debit: #b8654d;
+  --rt-warn: #b8863d;
+
+  /* Golden hour: the one decorative device (components/split/ui/GradientBlob.tsx). Never a button/badge/selected-state fill. */
+  --rt-gradient-1: #ffc971;
+  --rt-gradient-2: #ff8b7b;
+  --rt-gradient-3: #e8a0bf;
 
   /*
    * Precomputed alpha blends, not Tailwind opacity modifiers (bg-rt-debit/10
@@ -23,32 +34,31 @@
    * a nested theme color backed by a bare var() reference, and silently
    * produces no background at all rather than an error. color-mix() here
    * resolves at use-time against whatever --rt-credit/debit/warn currently
-   * is, so these don't need redefining under the light override below.
+   * is, so these don't need redefining under .dark below.
    */
-  --rt-credit-soft: color-mix(in srgb, var(--rt-credit) 10%, transparent);
-  --rt-credit-border: color-mix(in srgb, var(--rt-credit) 30%, transparent);
-  --rt-debit-soft: color-mix(in srgb, var(--rt-debit) 10%, transparent);
-  --rt-debit-soft-hover: color-mix(in srgb, var(--rt-debit) 20%, transparent);
-  --rt-debit-border: color-mix(in srgb, var(--rt-debit) 30%, transparent);
-  --rt-warn-soft: color-mix(in srgb, var(--rt-warn) 10%, transparent);
-  --rt-warn-border: color-mix(in srgb, var(--rt-warn) 30%, transparent);
+  --rt-credit-soft: color-mix(in srgb, var(--rt-credit) 12%, transparent);
+  --rt-credit-border: color-mix(in srgb, var(--rt-credit) 32%, transparent);
+  --rt-debit-soft: color-mix(in srgb, var(--rt-debit) 12%, transparent);
+  --rt-debit-soft-hover: color-mix(in srgb, var(--rt-debit) 22%, transparent);
+  --rt-debit-border: color-mix(in srgb, var(--rt-debit) 32%, transparent);
+  --rt-warn-soft: color-mix(in srgb, var(--rt-warn) 12%, transparent);
+  --rt-warn-border: color-mix(in srgb, var(--rt-warn) 32%, transparent);
 
   background: var(--rt-bg);
   color: var(--rt-ink-body);
   min-height: 100dvh;
 }
 
-html.light .running-tab {
-  --rt-bg: #f7f6f3;
-  --rt-surface: #ffffff;
-  --rt-surface-raised: #ffffff;
-  --rt-border: rgba(20, 20, 20, 0.1);
-  --rt-ink-strong: rgba(20, 20, 20, 0.92);
-  --rt-ink-body: rgba(20, 20, 20, 0.68);
-  --rt-ink-muted: rgba(20, 20, 20, 0.46);
-  --rt-ink-faint: rgba(20, 20, 20, 0.3);
-  --rt-accent: #0088aa;
-  --rt-credit: #059669;
-  --rt-debit: #e11d48;
-  --rt-warn: #b45309;
+.running-tab.dark {
+  --rt-bg: #1c1a17;
+  --rt-surface: #26231f;
+  --rt-surface-raised: #2e2a25;
+  --rt-border: rgba(255, 255, 255, 0.1);
+  --rt-ink-strong: #f2ede6;
+  --rt-ink-body: rgba(242, 237, 230, 0.78);
+  --rt-ink-muted: rgba(242, 237, 230, 0.52);
+  --rt-ink-faint: rgba(242, 237, 230, 0.32);
+  --rt-credit: #8fae7e;
+  --rt-debit: #d98368;
+  --rt-warn: #d9a855;
 }

@@ -89,7 +89,7 @@ export function MemberList({ secret, members, onChange }: MemberListProps) {
             <button
               type="button"
               onClick={() => startRename(m)}
-              className="min-h-9 flex-1 text-left text-sm text-rt-ink-strong hover:text-rt-accent"
+              className="min-h-9 flex-1 text-left text-sm text-rt-ink-strong underline decoration-rt-border decoration-1 underline-offset-4 hover:decoration-rt-ink-strong"
             >
               {m.name}
             </button>
@@ -107,7 +107,7 @@ export function MemberList({ secret, members, onChange }: MemberListProps) {
           className="flex-1"
         />
         <Button type="submit" variant="secondary" size="sm" disabled={busy || !newName.trim()}>
-          + Add
+          Add
         </Button>
       </form>
       {error && <p className="text-sm text-rt-debit">{error}</p>}

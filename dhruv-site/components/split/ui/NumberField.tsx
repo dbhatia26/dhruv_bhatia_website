@@ -49,13 +49,13 @@ export function NumberField({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-mono uppercase tracking-wider text-rt-ink-faint">
+      <label htmlFor={id} className="text-xs font-medium text-rt-ink-muted">
         {label}
       </label>
       <div
         className={clsx(
           "flex h-11 items-center gap-1.5 rounded-lg border bg-rt-surface px-3",
-          "focus-within:ring-2 focus-within:ring-rt-accent focus-within:ring-offset-2 focus-within:ring-offset-rt-bg",
+          "focus-within:ring-2 focus-within:ring-rt-ink-strong focus-within:ring-offset-2 focus-within:ring-offset-rt-bg",
           error ? "border-rt-debit" : "border-rt-border"
         )}
       >

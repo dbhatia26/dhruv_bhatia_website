@@ -56,9 +56,9 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option.value)}
             className={clsx(
               "min-h-9 min-w-11 rounded-md px-3 text-sm font-medium transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rt-accent",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rt-ink-strong",
               selected
-                ? "bg-rt-accent text-rt-bg"
+                ? "bg-rt-ink-strong text-rt-bg"
                 : "text-rt-ink-muted hover:text-rt-ink-strong"
             )}
           >

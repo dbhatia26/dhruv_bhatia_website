@@ -30,7 +30,7 @@ export function ExpenseList({
   const newestFirst = [...expenses].reverse();
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col divide-y divide-rt-border rounded-2xl border border-rt-border px-4">
       {newestFirst.map((expense) => (
         <ExpenseRow
           key={expense.id}

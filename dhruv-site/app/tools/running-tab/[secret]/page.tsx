@@ -11,6 +11,7 @@ import { BalancesPanel } from "@/components/split/BalancesPanel";
 import { AddExpenseSheet } from "@/components/split/AddExpenseSheet";
 import { SettleUpSheet } from "@/components/split/SettleUpSheet";
 import { Button } from "@/components/split/ui/Button";
+import { ThemeToggle } from "@/components/split/ThemeToggle";
 import type { Expense } from "@/lib/split/ui/types";
 
 interface SettlePrefill {
@@ -90,33 +91,35 @@ export default function GroupPage({ params }: { params: Promise<{ secret: string
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">
-      <header>
-        <p className="text-xs font-mono uppercase tracking-widest text-rt-ink-faint">
-          {state.group.baseCurrency}
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-rt-ink-strong">{state.group.name}</h1>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-rt-ink-strong">{state.group.name}</h1>
+          <p className="mt-0.5 text-sm text-rt-ink-muted">{state.group.baseCurrency}</p>
+        </div>
+        <ThemeToggle />
       </header>
 
       <section>
-        <h2 className="mb-2 text-xs font-mono uppercase tracking-wider text-rt-ink-faint">People</h2>
+        <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">People</h2>
         <MemberList secret={secret} members={state.members} onChange={() => refresh()} />
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-mono uppercase tracking-wider text-rt-ink-faint">Balances</h2>
+        <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">Balances</h2>
         <BalancesPanel
           balances={state.balances}
           members={state.members}
           baseCurrency={state.group.baseCurrency}
+          currentMemberId={identity}
           onSettle={openSettle}
         />
       </section>
 
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-mono uppercase tracking-wider text-rt-ink-faint">Expenses</h2>
+          <h2 className="text-sm font-semibold text-rt-ink-strong">Expenses</h2>
           <Button size="sm" onClick={() => openAdd(null)}>
-            + Add expense
+            Add expense
           </Button>
         </div>
         <ExpenseList

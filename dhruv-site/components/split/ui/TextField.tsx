@@ -17,10 +17,7 @@ export function TextField({ label, error, hideLabel, className, ...props }: Text
     <div className="flex flex-col gap-1.5">
       <label
         htmlFor={id}
-        className={clsx(
-          "text-xs font-mono uppercase tracking-wider text-rt-ink-faint",
-          hideLabel && "sr-only"
-        )}
+        className={clsx("text-xs font-medium text-rt-ink-muted", hideLabel && "sr-only")}
       >
         {label}
       </label>
@@ -28,7 +25,7 @@ export function TextField({ label, error, hideLabel, className, ...props }: Text
         id={id}
         className={clsx(
           "h-11 rounded-lg border bg-rt-surface px-3 text-sm text-rt-ink-strong placeholder:text-rt-ink-faint",
-          "focus:outline-none focus:ring-2 focus:ring-rt-accent focus:ring-offset-2 focus:ring-offset-rt-bg",
+          "focus:outline-none focus:ring-2 focus:ring-rt-ink-strong focus:ring-offset-2 focus:ring-offset-rt-bg",
           error ? "border-rt-debit" : "border-rt-border",
           className
         )}

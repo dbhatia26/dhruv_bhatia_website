@@ -39,7 +39,11 @@ module.exports = {
             muted: 'var(--rt-ink-muted)',
             faint: 'var(--rt-ink-faint)',
           },
-          accent: 'var(--rt-accent)',
+          gradient: {
+            1: 'var(--rt-gradient-1)',
+            2: 'var(--rt-gradient-2)',
+            3: 'var(--rt-gradient-3)',
+          },
           credit: 'var(--rt-credit)',
           'credit-soft': 'var(--rt-credit-soft)',
           'credit-border': 'var(--rt-credit-border)',

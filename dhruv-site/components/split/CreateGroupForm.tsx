@@ -58,7 +58,7 @@ export function CreateGroupForm() {
       />
       <CurrencyPicker value={baseCurrency} onChange={setBaseCurrency} />
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-mono uppercase tracking-wider text-rt-ink-faint">Who&apos;s going</span>
+        <span className="text-xs font-medium text-rt-ink-muted">Who&apos;s going</span>
         {memberNames.map((memberName, i) => (
           <div key={i} className="flex gap-2">
             <TextField
@@ -84,7 +84,7 @@ export function CreateGroupForm() {
           </div>
         ))}
         <Button type="button" variant="secondary" size="sm" onClick={addMemberRow}>
-          + Add person
+          Add person
         </Button>
       </div>
       {error && <p className="text-sm text-rt-debit">{error}</p>}
