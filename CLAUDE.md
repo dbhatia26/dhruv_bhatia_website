@@ -53,6 +53,13 @@ lib/split/
     queries.ts    group/member/expense/settlement functions with validation
     index.ts      server-only barrel
     __tests__/    integration tests against in-process PGlite
+  api/
+    respond.ts    noStore/errorResponse/readJson, the SplitError/NotFoundError -> status contract
+    schemas.ts    Zod structural schemas for request bodies
+    index.ts      server-only barrel
+  fx.ts           server-only Frankfurter fetch, no caching or override yet
+app/api/split/    route handlers, one directory per endpoint (Next 16 async params)
+  __tests__/      route handler tests, getDb mocked to PGlite
 drizzle/          generated migrations (commit these)
 drizzle.config.ts
 vitest.config.ts
@@ -63,7 +70,7 @@ Split specs are stored as JSONB on the expense row (no separate splits table): s
 ### Commands
 
 ```bash
-npm test               # all tests (63 at end of Phase 2)
+npm test               # all tests (88 at end of Phase 3)
 npm run test:watch
 npm run db:generate    # after changing schema.ts
 npm run db:migrate     # apply migrations to Neon
@@ -90,16 +97,10 @@ npm run build          # run before pushing anything non-trivial
 - [x] **Phase 2:** schema, migrations (applied to Neon), data layer, PGlite integration tests.
 - [x] **Next.js upgrade to 16.** Done on `nextjs-16-upgrade` (off `main`), merged to `main` via PR #1 (squash), Vercel preview checked. Next 14.2.5 → 16.3.5, React 18 → 19.3.0. `npm audit --omit=dev` clean (was 8 vulnerabilities incl. 1 critical). The codemod (`npx @next/codemod@canary upgrade latest`) made 0 code modifications, since this codebase has no `params`/`searchParams`, middleware, or `forwardRef`/`defaultProps`/string refs anywhere. See "Gotchas already hit" below for what the codemod got wrong and needed manual correction.
 - [x] **Merge `main` into `splitter`.** Done. Conflicted in `package.json`/`package-lock.json` as expected; resolved by hand-reconciling `package.json` (kept both the Next 16/React 19 bump and the drizzle/vitest/pglite additions, bumped `@next/env` to `16.3.5` to match `next`) and regenerating the lockfile with `npm install` rather than merging it. All 63 tests, `npm run build`, and `npm run lint` still pass post-merge.
-- [ ] **Phase 3: API route handlers** (written for Next 16, where params are async).
-  Proposed endpoints under `app/api/split/`:
-  - `POST groups`, `GET groups/[secret]` (state plus balances, simplified and raw)
-  - `POST groups/[secret]/members`, `PATCH .../members/[id]`
-  - `POST .../expenses`, `PATCH .../expenses/[id]`, `DELETE .../expenses/[id]`, `POST .../expenses/[id]/restore`
-  - `POST .../settlements`, `DELETE .../settlements/[id]`
-  - `GET fx?from=THB&to=CAD`
-  Validate request bodies with Zod at the boundary. Map `SplitError` to 400 and `NotFoundError` to 404. Node runtime, `Cache-Control: no-store`. Add route handler tests.
+- [x] **Phase 3: API route handlers.** All 9 endpoints under `app/api/split/` (`POST groups`, `GET groups/[secret]`, `POST/PATCH members`, `POST/PATCH/DELETE/restore expenses`, `POST/DELETE settlements`, `GET fx`), written for Next 16's async `params`. Zod structural validation lives in `lib/split/api/schemas.ts`; business rules stay in `lib/split/db/queries.ts` as the single source of truth (not duplicated in Zod). Shared `noStore`/`errorResponse`/`readJson` helpers in `lib/split/api/respond.ts` give every route the `SplitError` → 400 / `NotFoundError` → 404 / `Cache-Control: no-store` contract without repeating it. Node runtime on every route. 25 new route handler tests (`app/api/split/__tests__/`) mock `getDb` to a PGlite instance the same way the Phase 2 integration tests do; also smoke-tested live against real Neon (group create, expense add, balances, fx, 404, then cleaned up). `vitest.config.ts` now includes `app/**/*.test.ts` and resolves the `@/*` alias.
+  The `GET fx` route (`lib/split/fx.ts`) does a direct Frankfurter fetch with no caching or manual override yet — that's still Phase 5's job, since Frankfurter doesn't cover several travel currencies.
 - [ ] **Phase 4: UI.** Mobile first. Match the site's existing visual style and Framer Motion conventions. Group page, add-expense sheet, balances, settle-up with simplified/raw toggle, identity picker, device group list. Note in the UI that base-currency totals will not exactly match card statements (banks apply their own rates and fees).
-- [ ] **Phase 5: FX.** Frankfurter at `https://api.frankfurter.dev/v1` (ECB rates, no key, about 30 currencies, updated once per working day). Fetch server-side only. Manual rate override is required, since many travel currencies (VND, COP, MAD, IDR and others) are not covered.
+- [ ] **Phase 5: FX.** Basic Frankfurter fetch already exists from Phase 3 (`lib/split/fx.ts`, ECB rates, no key, about 30 currencies, updated once per working day). Still needed: a manual rate override, since several travel currencies (VND, COP, MAD, IDR and others) are not covered, and caching so every expense entry doesn't hit Frankfurter fresh.
 - [ ] **Phase 6: hardening and deploy.** `Referrer-Policy: no-referrer` on group routes so the secret never leaks, rate limiting on group creation, empty and error states, then ship to `/tools/<name>`.
 
 ## Gotchas already hit
