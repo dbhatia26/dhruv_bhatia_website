@@ -34,7 +34,7 @@ export function BalancesPanel({
     <div className="flex flex-col gap-4">
       {heroAmount !== null && (
         <Card className="relative overflow-hidden">
-          <GradientBlob className="-right-16 -top-20 h-56 w-56" />
+          <GradientBlob className="-right-8 -top-16 h-64 w-64" />
           <div className="relative">
             <p className="text-sm text-rt-ink-muted">
               {heroAmount === 0 ? "You're settled up" : heroAmount > 0 ? "You're owed" : "You owe"}
