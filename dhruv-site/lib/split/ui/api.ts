@@ -109,3 +109,10 @@ export function getFxRate(from: string, to: string) {
     `/fx?from=${from}&to=${to}`
   );
 }
+
+export function setFxOverride(secret: string, currency: string, rate: number) {
+  return request<{ currency: string; rate: number }>(`/groups/${secret}/fx-overrides`, {
+    method: "PUT",
+    body: JSON.stringify({ currency, rate }),
+  });
+}

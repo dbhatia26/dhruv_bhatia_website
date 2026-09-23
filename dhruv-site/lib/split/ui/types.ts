@@ -49,4 +49,6 @@ export interface GroupState {
   expenses: Expense[];
   settlements: Settlement[];
   balances: Balances;
+  /** Saved default exchange rates by currency, used to prefill new expenses. */
+  fxOverrides: Record<string, number>;
 }

@@ -5,7 +5,7 @@ import { convertToBase } from "../currency";
 import type { Expense, MemberId, Settlement, SplitSpec } from "../types";
 import { SplitError } from "../types";
 import type { SplitDb } from "./client";
-import { expenses, groups, members, settlements } from "./schema";
+import { expenses, fxOverrides, groups, members, settlements } from "./schema";
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -54,6 +54,8 @@ export interface GroupState {
   expenses: ExpenseRecord[];
   /** Includes soft-deleted settlements, same reason. */
   settlements: SettlementRecord[];
+  /** Saved default exchange rates by currency, used to prefill new expenses. */
+  fxOverrides: Record<string, number>;
 }
 
 export interface ExpenseInput {
@@ -351,7 +353,7 @@ function sortMembers(list: Member[]): Member[] {
 export async function loadGroup(db: SplitDb, secret: string): Promise<GroupState> {
   const group = await requireGroup(db, secret);
 
-  const [memberRows, expenseRows, settlementRows] = await Promise.all([
+  const [memberRows, expenseRows, settlementRows, fxOverrideRows] = await Promise.all([
     db.select({ id: members.id, name: members.name })
       .from(members)
       .where(eq(members.groupId, group.id)),
@@ -361,6 +363,9 @@ export async function loadGroup(db: SplitDb, secret: string): Promise<GroupState
     db.select().from(settlements)
       .where(eq(settlements.groupId, group.id))
       .orderBy(asc(settlements.date), asc(settlements.createdAt)),
+    db.select({ currency: fxOverrides.currency, rate: fxOverrides.rate })
+      .from(fxOverrides)
+      .where(eq(fxOverrides.groupId, group.id)),
   ]);
 
   return {
@@ -372,6 +377,7 @@ export async function loadGroup(db: SplitDb, secret: string): Promise<GroupState
     members: sortMembers(memberRows),
     expenses: expenseRows.map(toExpenseRecord),
     settlements: settlementRows.map(toSettlementRecord),
+    fxOverrides: Object.fromEntries(fxOverrideRows.map((r) => [r.currency, r.rate])),
   };
 }
 
@@ -534,4 +540,41 @@ export async function deleteSettlement(
     .returning();
   if (!row) throw new NotFoundError("Settlement not found");
   return toSettlementRecord(row);
+}
+
+// ---------------------------------------------------------------------------
+// FX overrides
+// ---------------------------------------------------------------------------
+
+/**
+ * A saved default exchange rate for one currency in one group, so a traveler
+ * only has to look up (say) COP -> CAD once per trip instead of on every
+ * expense. Only changes what new expenses default to: expense.fxRate is
+ * still frozen at save time regardless, per the existing invariant.
+ */
+export async function setFxOverride(
+  db: SplitDb,
+  secret: string,
+  currency: string,
+  rawRate: number
+): Promise<{ currency: string; rate: number }> {
+  const group = await requireGroup(db, secret);
+  const cleanedCurrency = cleanCurrency(currency);
+
+  if (cleanedCurrency === group.baseCurrency) {
+    throw new SplitError("an override for the group's own base currency makes no sense");
+  }
+  if (typeof rawRate !== "number" || !Number.isFinite(rawRate) || rawRate <= 0) {
+    throw new SplitError("rate must be a positive number");
+  }
+
+  await db
+    .insert(fxOverrides)
+    .values({ groupId: group.id, currency: cleanedCurrency, rate: rawRate })
+    .onConflictDoUpdate({
+      target: [fxOverrides.groupId, fxOverrides.currency],
+      set: { rate: rawRate, updatedAt: new Date() },
+    });
+
+  return { currency: cleanedCurrency, rate: rawRate };
 }

@@ -139,6 +139,7 @@ export default function GroupPage({ params }: { params: Promise<{ secret: string
         baseCurrency={state.group.baseCurrency}
         createdBy={identity}
         editing={editingExpense}
+        fxOverrides={state.fxOverrides}
         onSaved={refresh}
       />
       <SettleUpSheet

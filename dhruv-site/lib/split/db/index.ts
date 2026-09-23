@@ -15,6 +15,7 @@ export {
   restoreExpense,
   addSettlement,
   deleteSettlement,
+  setFxOverride,
   NotFoundError,
   LIMITS,
   type GroupInfo,

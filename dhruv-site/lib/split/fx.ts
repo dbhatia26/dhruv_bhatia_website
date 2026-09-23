@@ -2,9 +2,10 @@
  * Server-only: fetches ECB exchange rates from Frankfurter. Called from the
  * /api/split/fx route handler, never from client code.
  *
- * No caching and no manual override yet. Frankfurter covers about 30
- * currencies; travel currencies like VND, COP, MAD and IDR are not among
- * them, so a manual-override fallback is still needed (Phase 5).
+ * Frankfurter covers 30 currencies (checked live against its own
+ * /v1/currencies endpoint); some travel currencies are not among them,
+ * for example VND, COP and MAD. For those, lib/split/db/queries.ts's
+ * setFxOverride lets a group save its own rate instead.
  */
 import { SplitError } from "./types";
 import { NotFoundError } from "./db";
@@ -38,7 +39,11 @@ export async function getFxRate(from: string, to: string): Promise<FxRate> {
     return { from, to, rate: 1, date: new Date().toISOString().slice(0, 10) };
   }
 
-  const res = await fetch(`${FRANKFURTER_BASE}/latest?from=${from}&to=${to}`);
+  // Frankfurter updates once per working day, so a day-long cache means
+  // routine expense entry doesn't hit it fresh every time.
+  const res = await fetch(`${FRANKFURTER_BASE}/latest?from=${from}&to=${to}`, {
+    next: { revalidate: 86_400 },
+  });
   if (!res.ok) {
     throw new NotFoundError(`No exchange rate available for ${from} to ${to}`);
   }

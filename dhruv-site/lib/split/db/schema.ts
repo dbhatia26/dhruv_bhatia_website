@@ -107,4 +107,19 @@ export const settlements = splitSchema.table(
   (t) => [index("settlements_group_idx").on(t.groupId)]
 );
 
-export const schema = { groups, members, expenses, settlements };
+export const fxOverrides = splitSchema.table(
+  "fx_overrides",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    /** Base units per 1 unit of `currency`. Same convention as Expense.fxRate. */
+    rate: doublePrecision("rate").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("fx_overrides_group_currency_idx").on(t.groupId, t.currency)]
+);
+
+export const schema = { groups, members, expenses, settlements, fxOverrides };

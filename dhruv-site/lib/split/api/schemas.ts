@@ -41,3 +41,8 @@ export const settlementInputSchema = z.object({
   date: z.string(),
   createdBy: z.string().nullable().optional(),
 });
+
+export const fxOverrideSchema = z.object({
+  currency: z.string(),
+  rate: z.number(),
+});

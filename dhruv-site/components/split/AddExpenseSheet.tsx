@@ -8,7 +8,7 @@ import { Select } from "./ui/Select";
 import { SegmentedControl } from "./ui/SegmentedControl";
 import { Button } from "./ui/Button";
 import { CurrencyPicker } from "./CurrencyPicker";
-import { addExpense, updateExpense, getFxRate, ApiError } from "@/lib/split/ui/api";
+import { addExpense, updateExpense, getFxRate, setFxOverride, ApiError } from "@/lib/split/ui/api";
 import { reconcileExactSplit, reconcilePercentSplit } from "@/lib/split/ui/splitInput";
 import { toMinor, fromMinor } from "@/lib/split/currency";
 import type { SplitMode } from "@/lib/split";
@@ -23,6 +23,8 @@ interface AddExpenseSheetProps {
   createdBy: string | null;
   /** Null adds a new expense; an Expense edits it in place. */
   editing: Expense | null;
+  /** Saved default exchange rates by currency, checked before hitting Frankfurter. */
+  fxOverrides: Record<string, number>;
   onSaved: () => void;
 }
 
@@ -59,6 +61,7 @@ export function AddExpenseSheet({
   baseCurrency,
   createdBy,
   editing,
+  fxOverrides,
   onSaved,
 }: AddExpenseSheetProps) {
   const [description, setDescription] = useState("");
@@ -71,6 +74,10 @@ export function AddExpenseSheet({
   const [perMemberRaw, setPerMemberRaw] = useState<Record<string, string>>({});
   const [fxRate, setFxRate] = useState("1");
   const [fxLoading, setFxLoading] = useState(false);
+  // True once the user picks a currency themselves, so opening an edit sheet
+  // doesn't clobber the expense's already-frozen rate with a fresh lookup.
+  const [currencyDirty, setCurrencyDirty] = useState(false);
+  const [saveAsDefault, setSaveAsDefault] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -87,14 +94,28 @@ export function AddExpenseSheet({
     );
     setPerMemberRaw(initialPerMemberRaw(editing));
     setFxRate(editing ? String(editing.fxRate) : "1");
+    setCurrencyDirty(false);
+    setSaveAsDefault(false);
     setError(null);
   }, [open, editing, members, baseCurrency, createdBy]);
 
   useEffect(() => {
-    if (!open || currency === baseCurrency) {
+    if (!open) return;
+    if (currency === baseCurrency) {
       setFxRate("1");
       return;
     }
+    // Editing an expense whose currency hasn't been touched yet: keep the
+    // rate it was actually saved with, rather than overwriting it with
+    // today's override or live rate.
+    if (editing && !currencyDirty) return;
+
+    const override = fxOverrides[currency];
+    if (override !== undefined) {
+      setFxRate(String(override));
+      return;
+    }
+
     let cancelled = false;
     setFxLoading(true);
     getFxRate(currency, baseCurrency)
@@ -111,7 +132,12 @@ export function AddExpenseSheet({
     return () => {
       cancelled = true;
     };
-  }, [open, currency, baseCurrency]);
+  }, [open, currency, baseCurrency, editing, currencyDirty, fxOverrides]);
+
+  const handleCurrencyChange = (value: string) => {
+    setCurrencyDirty(true);
+    setCurrency(value);
+  };
 
   const toggleParticipant = (id: string) => {
     setParticipants((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
@@ -122,6 +148,9 @@ export function AddExpenseSheet({
   };
 
   const amountMinor = toMinor(Number(amount || "0"), currency);
+
+  const usingSavedRate =
+    !fxLoading && currency !== baseCurrency && (!editing || currencyDirty) && fxOverrides[currency] !== undefined;
 
   const reconciliation =
     splitMode === "exact"
@@ -179,6 +208,11 @@ export function AddExpenseSheet({
       } else {
         await addExpense(secret, input);
       }
+      if (saveAsDefault && currency !== baseCurrency) {
+        // Best-effort: the expense is already saved either way. Losing the
+        // override isn't worth blocking on or re-showing the sheet for.
+        await setFxOverride(secret, currency, fxRateNum).catch(() => {});
+      }
       onSaved();
       onClose();
     } catch (err) {
@@ -207,16 +241,27 @@ export function AddExpenseSheet({
             currency={currency}
             prefix={currency}
           />
-          <CurrencyPicker value={currency} onChange={setCurrency} />
+          <CurrencyPicker value={currency} onChange={handleCurrencyChange} />
         </div>
         {currency !== baseCurrency && (
-          <NumberField
-            label={`Exchange rate to ${baseCurrency}${fxLoading ? " (fetching...)" : ""}`}
-            value={fxRate}
-            onChange={setFxRate}
-            decimals={6}
-            placeholder="1.00"
-          />
+          <div className="flex flex-col gap-2">
+            <NumberField
+              label={`Exchange rate to ${baseCurrency}${fxLoading ? " (fetching...)" : usingSavedRate ? " (saved rate)" : ""}`}
+              value={fxRate}
+              onChange={setFxRate}
+              decimals={6}
+              placeholder="1.00"
+            />
+            <label className="flex min-h-9 items-center gap-2 text-sm text-rt-ink-body">
+              <input
+                type="checkbox"
+                checked={saveAsDefault}
+                onChange={(e) => setSaveAsDefault(e.target.checked)}
+                className="h-4 w-4 accent-rt-accent"
+              />
+              Save as this trip&apos;s default rate for {currency}
+            </label>
+          </div>
         )}
         <Select label="Paid by" value={paidBy} onChange={(e) => setPaidBy(e.target.value)}>
           {members.map((m) => (

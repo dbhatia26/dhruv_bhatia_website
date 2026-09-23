@@ -7,7 +7,7 @@ import type { SplitDb } from "../client";
 import {
   createGroup, loadGroup, addMember, renameMember,
   addExpense, updateExpense, deleteExpense, restoreExpense,
-  addSettlement, deleteSettlement, NotFoundError, type ExpenseInput,
+  addSettlement, deleteSettlement, setFxOverride, NotFoundError, type ExpenseInput,
 } from "../queries";
 import { computeBalances, simplifyDebts } from "../../balances";
 import { toMinor } from "../../currency";
@@ -303,5 +303,37 @@ describe("settlements", () => {
       .rejects.toThrow(/two different people/);
     await expect(addSettlement(db, t.secret, { from: b, to: a, amountMinor: -5, date: today }))
       .rejects.toThrow(SplitError);
+  });
+});
+
+describe("fx overrides", () => {
+  it("saves an override and surfaces it through loadGroup", async () => {
+    const t = await trip();
+    const result = await setFxOverride(db, t.secret, "thb", 0.0424);
+    expect(result).toEqual({ currency: "THB", rate: 0.0424 });
+    expect((await loadGroup(db, t.secret)).fxOverrides).toEqual({ THB: 0.0424 });
+  });
+
+  it("upserts rather than duplicating on a second save for the same currency", async () => {
+    const t = await trip();
+    await setFxOverride(db, t.secret, "THB", 0.0424);
+    await setFxOverride(db, t.secret, "THB", 0.041);
+    expect((await loadGroup(db, t.secret)).fxOverrides).toEqual({ THB: 0.041 });
+  });
+
+  it("rejects an override for the group's own base currency", async () => {
+    const t = await trip();
+    await expect(setFxOverride(db, t.secret, "CAD", 1.5)).rejects.toThrow(SplitError);
+  });
+
+  it("rejects a non-positive or non-finite rate", async () => {
+    const t = await trip();
+    await expect(setFxOverride(db, t.secret, "THB", 0)).rejects.toThrow(SplitError);
+    await expect(setFxOverride(db, t.secret, "THB", -1)).rejects.toThrow(SplitError);
+    await expect(setFxOverride(db, t.secret, "THB", NaN)).rejects.toThrow(SplitError);
+  });
+
+  it("returns not found for an unknown group secret", async () => {
+    await expect(setFxOverride(db, "AAAAAAAAAAAAAAAAAAAAA", "THB", 0.04)).rejects.toThrow(NotFoundError);
   });
 });
