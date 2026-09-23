@@ -12,6 +12,7 @@ import { AddExpenseSheet } from "@/components/split/AddExpenseSheet";
 import { SettleUpSheet } from "@/components/split/SettleUpSheet";
 import { Button } from "@/components/split/ui/Button";
 import { ThemeToggle } from "@/components/split/ThemeToggle";
+import { GradientBlob } from "@/components/split/ui/GradientBlob";
 import type { Expense } from "@/lib/split/ui/types";
 
 interface SettlePrefill {
@@ -90,71 +91,75 @@ export default function GroupPage({ params }: { params: Promise<{ secret: string
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">
-      <header className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-rt-ink-strong">{state.group.name}</h1>
-          <p className="mt-0.5 text-sm text-rt-ink-muted">{state.group.baseCurrency}</p>
-        </div>
-        <ThemeToggle />
-      </header>
+    <main className="relative min-h-dvh overflow-hidden">
+      {/* Same corner wash as the landing page, so both pages open with the same gesture. */}
+      <GradientBlob className="-left-24 -top-32 h-96 w-96" />
+      <div className="relative mx-auto flex max-w-md flex-col gap-6 px-4 py-8">
+        <header className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-rt-ink-strong">{state.group.name}</h1>
+            <p className="mt-0.5 text-sm text-rt-ink-muted">{state.group.baseCurrency}</p>
+          </div>
+          <ThemeToggle />
+        </header>
 
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">People</h2>
-        <MemberList secret={secret} members={state.members} onChange={() => refresh()} />
-      </section>
+        <section>
+          <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">People</h2>
+          <MemberList secret={secret} members={state.members} onChange={() => refresh()} />
+        </section>
 
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">Balances</h2>
-        <BalancesPanel
-          balances={state.balances}
+        <section>
+          <h2 className="mb-2 text-sm font-semibold text-rt-ink-strong">Balances</h2>
+          <BalancesPanel
+            balances={state.balances}
+            members={state.members}
+            baseCurrency={state.group.baseCurrency}
+            currentMemberId={identity}
+            onSettle={openSettle}
+          />
+        </section>
+
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-rt-ink-strong">Expenses</h2>
+            <Button size="sm" onClick={() => openAdd(null)}>
+              Add expense
+            </Button>
+          </div>
+          <ExpenseList
+            expenses={state.expenses}
+            members={state.members}
+            baseCurrency={state.group.baseCurrency}
+            onEdit={openAdd}
+            onDelete={handleDelete}
+            onRestore={handleRestore}
+          />
+        </section>
+
+        {actionError && <p className="text-sm text-rt-debit">{actionError}</p>}
+
+        <AddExpenseSheet
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          secret={secret}
           members={state.members}
           baseCurrency={state.group.baseCurrency}
-          currentMemberId={identity}
-          onSettle={openSettle}
+          createdBy={identity}
+          editing={editingExpense}
+          fxOverrides={state.fxOverrides}
+          onSaved={refresh}
         />
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-rt-ink-strong">Expenses</h2>
-          <Button size="sm" onClick={() => openAdd(null)}>
-            Add expense
-          </Button>
-        </div>
-        <ExpenseList
-          expenses={state.expenses}
+        <SettleUpSheet
+          open={settleOpen}
+          onClose={() => setSettleOpen(false)}
+          secret={secret}
           members={state.members}
           baseCurrency={state.group.baseCurrency}
-          onEdit={openAdd}
-          onDelete={handleDelete}
-          onRestore={handleRestore}
+          createdBy={identity}
+          prefill={settlePrefill}
+          onSettled={refresh}
         />
-      </section>
-
-      {actionError && <p className="text-sm text-rt-debit">{actionError}</p>}
-
-      <AddExpenseSheet
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        secret={secret}
-        members={state.members}
-        baseCurrency={state.group.baseCurrency}
-        createdBy={identity}
-        editing={editingExpense}
-        fxOverrides={state.fxOverrides}
-        onSaved={refresh}
-      />
-      <SettleUpSheet
-        open={settleOpen}
-        onClose={() => setSettleOpen(false)}
-        secret={secret}
-        members={state.members}
-        baseCurrency={state.group.baseCurrency}
-        createdBy={identity}
-        prefill={settlePrefill}
-        onSettled={refresh}
-      />
+      </div>
     </main>
   );
 }
